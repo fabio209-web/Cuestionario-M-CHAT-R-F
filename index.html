@@ -1,1 +1,1282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>M-CHAT-R/F - Cuestionario de Detección del Autismo</title>
 
+  <!-- Librerías para PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <style>
+    :root {
+      --primary: #3498db;
+      --primary-dark: #2980b9;
+      --primary-soft: #e8f4fd;
+      --success: #27ae60;
+      --danger: #e74c3c;
+      --warning: #f1c40f;
+      --gray-soft: #f5f7fa;
+      --border: #dee2e6;
+      --text-main: #2c3e50;
+      --text-soft: #666;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: var(--gray-soft);
+    }
+
+    .container {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.08);
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      color: var(--text-main);
+      text-align: center;
+      border-bottom: 3px solid var(--primary);
+      padding-bottom: 15px;
+      margin-bottom: 25px;
+      font-size: 28px;
+    }
+
+    h2 {
+      color: #34495e;
+      margin-top: 30px;
+      border-left: 5px solid var(--primary);
+      padding-left: 15px;
+      margin-bottom: 20px;
+      font-size: 20px;
+    }
+
+    .instructions {
+      background-color: var(--primary-soft);
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin-bottom: 25px;
+      border-left: 5px solid var(--primary);
+      font-size: 14px;
+    }
+
+    .patient-info {
+      background-color: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 25px;
+      border: 1px solid var(--border);
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #555;
+      font-size: 14px;
+    }
+
+    input[type="text"],
+    input[type="date"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 15px;
+    }
+
+    input[type="text"]:focus,
+    input[type="date"]:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(52,152,219,0.15);
+    }
+
+    .question {
+      margin-bottom: 20px;
+      padding: 18px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      background-color: #fafafa;
+      transition: all 0.25s ease;
+    }
+
+    .question:hover {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transform: translateY(-1px);
+    }
+
+    .question-text {
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text-main);
+      font-size: 15px;
+    }
+
+    .options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: transform 0.15s ease;
+    }
+
+    .option:hover {
+      transform: scale(1.03);
+    }
+
+    input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .navigation {
+      text-align: center;
+      margin-top: 25px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    button {
+      background-color: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+      transition: all 0.25s ease;
+    }
+
+    button:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+
+    button:disabled {
+      background-color: #bdc3c7;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .secondary {
+      background-color: #95a5a6;
+    }
+
+    .secondary:hover {
+      background-color: #7f8c8d;
+    }
+
+    .restart {
+      background-color: var(--success);
+    }
+
+    .restart:hover {
+      background-color: #219955;
+    }
+
+    .download {
+      background-color: #8e44ad;
+    }
+
+    .download:hover {
+      background-color: #7d3c98;
+    }
+
+    .print-button {
+      background-color: var(--success);
+    }
+
+    .print-button:hover {
+      background-color: #219955;
+    }
+
+    .result {
+      margin-top: 25px;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: left;
+      font-size: 15px;
+      display: none;
+      animation: fadeIn 0.4s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .low-risk {
+      background-color: #d4edda;
+      color: #155724;
+      border: 2px solid #c3e6cb;
+    }
+
+    .medium-risk {
+      background-color: #fff3cd;
+      color: #856404;
+      border: 2px solid #ffeaa7;
+    }
+
+    .high-risk {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 2px solid #f5c6cb;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .follow-up-section {
+      margin-top: 25px;
+      padding: 20px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      background-color: #fff;
+    }
+
+    .follow-up-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+      font-size: 14px;
+    }
+
+    .follow-up-table th,
+    .follow-up-table td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+
+    .follow-up-table th {
+      background-color: #f8f9fa;
+      font-weight: 600;
+    }
+
+    .follow-up-table tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+
+    .step-indicator {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      gap: 5px;
+    }
+
+    .step {
+      text-align: center;
+      flex: 1;
+      min-width: 120px;
+      padding: 8px;
+      background-color: #f8f9fa;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      font-size: 13px;
+    }
+
+    .step.current {
+      background-color: var(--primary);
+      color: #fff;
+      font-weight: bold;
+    }
+
+    .step.completed {
+      background-color: var(--success);
+      color: #fff;
+      font-weight: bold;
+    }
+
+    .progress-container {
+      margin: 15px 0 20px;
+      height: 8px;
+      background-color: #e9ecef;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: var(--primary);
+      transition: width 0.4s ease;
+    }
+
+    .restart-container {
+      text-align: center;
+      margin: 25px 0 5px;
+      padding: 15px;
+      border: 2px dashed var(--primary);
+      border-radius: 8px;
+      background-color: var(--primary-soft);
+      font-size: 14px;
+    }
+
+    .restart-container h3 {
+      color: var(--text-main);
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+
+    .risk-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-right: 8px;
+    }
+
+    .badge-low {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .badge-medium {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+
+    .badge-high {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    .missing-questions {
+      background-color: #f8d7da;
+      color: #721c24;
+      padding: 12px 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+      border: 1px solid #f5c6cb;
+      font-size: 14px;
+    }
+
+    .missing-questions h3 {
+      margin-top: 0;
+      margin-bottom: 6px;
+      font-size: 15px;
+    }
+
+    .missing-questions ul {
+      margin: 5px 0 0;
+      padding-left: 20px;
+    }
+
+    .missing-questions li {
+      margin: 2px 0;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0,0,0,0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: #fff;
+      padding: 25px 25px 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 620px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      animation: modalFadeIn 0.25s ease-out;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--primary);
+    }
+
+    .modal-title {
+      color: var(--text-main);
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .close-button {
+      background: none;
+      border: none;
+      font-size: 26px;
+      cursor: pointer;
+      color: #95a5a6;
+      line-height: 1;
+    }
+
+    .close-button:hover {
+      color: var(--danger);
+    }
+
+    .modal-body {
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .modal-body ul,
+    .modal-body ol {
+      padding-left: 20px;
+    }
+
+    .modal-footer {
+      text-align: right;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .copyright {
+      text-align: center;
+      margin-top: 10px;
+      color: var(--text-soft);
+      font-size: 12px;
+      font-style: italic;
+    }
+
+    /* Impresión */
+    @media print {
+      body {
+        background-color: #fff;
+        padding: 0;
+      }
+      .container {
+        box-shadow: none;
+        border: 1px solid #000;
+        padding: 15px;
+      }
+      .navigation,
+      .restart-container,
+      button,
+      .step-indicator,
+      .copyright,
+      .modal {
+        display: none !important;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+      h1 {
+        font-size: 22px;
+      }
+      .question-text {
+        font-size: 14px;
+      }
+      .options {
+        gap: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="printable-area" aria-live="polite">
+    <h1>Cuestionario M-CHAT-R/F™</h1>
+
+    <div class="step-indicator" aria-label="Progreso de la evaluación">
+      <div id="step1" class="step current">1. Datos del paciente</div>
+      <div id="step2" class="step">2. Cuestionario</div>
+      <div id="step3" class="step">3. Seguimiento</div>
+      <div id="step4" class="step">4. Resultados</div>
+    </div>
+
+    <!-- Sección datos paciente -->
+    <section id="patient-info-section" aria-labelledby="patient-info-title">
+      <div class="patient-info">
+        <h2 id="patient-info-title">Información del Paciente</h2>
+
+        <div class="form-group">
+          <label for="patient-name">Nombre del paciente:</label>
+          <input type="text" id="patient-name" placeholder="Ingrese el nombre completo" autocomplete="off" />
+        </div>
+
+        <div class="form-group">
+          <label for="patient-birthdate">Fecha de nacimiento:</label>
+          <input type="date" id="patient-birthdate" />
+        </div>
+
+        <div class="form-group">
+          <label for="evaluation-date">Fecha de evaluación:</label>
+          <input type="date" id="evaluation-date" />
+        </div>
+
+        <div class="form-group">
+          <label for="evaluator-name">Nombre del evaluador:</label>
+          <input type="text" id="evaluator-name" placeholder="Nombre del profesional" autocomplete="off" />
+        </div>
+      </div>
+
+      <div class="navigation">
+        <button type="button" onclick="validatePatientInfo()">
+          Continuar al cuestionario
+        </button>
+      </div>
+    </section>
+
+    <!-- Sección cuestionario principal -->
+    <section id="main-form" class="hidden" aria-labelledby="main-form-title">
+      <div class="instructions">
+        <strong>Instrucciones:</strong>
+        Para todos los ítems, excepto el 2, 5 y 12, la respuesta <strong>“NO”</strong> indica riesgo de TEA.
+        Para los ítems <strong>2, 5 y 12</strong>, la respuesta <strong>“SÍ”</strong> indica riesgo de TEA.
+      </div>
+
+      <div class="progress-container" aria-hidden="true">
+        <div id="progress-bar" class="progress-bar"></div>
+      </div>
+
+      <h2 id="main-form-title">Cuestionario M-CHAT-R (20 ítems)</h2>
+
+      <form id="mchat-form">
+        <!-- Preguntas generadas por JS, este contenedor es solo para ancla -->
+        <div id="questions-container"></div>
+
+        <div class="navigation">
+          <button type="button" class="secondary" onclick="goBackToPatientInfo()">
+            Atrás
+          </button>
+          <button type="button" onclick="calculateScore()">
+            Calcular resultado
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Entrevista de seguimiento -->
+    <section id="follow-up-section" class="follow-up-section hidden" aria-labelledby="followup-title">
+      <h2 id="followup-title">Entrevista de Seguimiento M-CHAT-R/F™</h2>
+      <p>Según el resultado inicial, se requiere aplicar la entrevista de seguimiento.</p>
+
+      <table class="follow-up-table">
+        <thead>
+          <tr>
+            <th>Pregunta</th>
+            <th>¿Pasa?</th>
+            <th>¿No pasa?</th>
+          </tr>
+        </thead>
+        <tbody id="follow-up-questions">
+          <!-- Se genera dinámicamente -->
+        </tbody>
+      </table>
+
+      <div class="navigation">
+        <button type="button" class="secondary" onclick="goBackToMainForm()">
+          Atrás
+        </button>
+        <button type="button" onclick="calculateFollowUpScore()">
+          Calcular resultado de seguimiento
+        </button>
+      </div>
+    </section>
+
+    <div id="result" class="result"></div>
+
+    <div id="restart-container" class="restart-container hidden">
+      <h3>¿Desea realizar un nuevo cuestionario?</h3>
+      <p>Puede evaluar a otro paciente manteniendo esta herramienta abierta.</p>
+      <button type="button" class="restart" onclick="restartQuestionnaire()">
+        Nuevo cuestionario
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal de explicación de riesgo -->
+  <div id="risk-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-title">Nivel de riesgo</h2>
+        <button type="button" class="close-button" onclick="closeModal()" aria-label="Cerrar">
+          &times;
+        </button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="secondary" onclick="closeModal()">Cerrar</button>
+        <button type="button" class="print-button" onclick="printResults()">Imprimir resultados</button>
+        <button type="button" class="download" onclick="downloadPDF()">Descargar PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="copyright">
+    © 2009 Diana Robins, Deborah Fein, &amp; Marianne Barton. Traducción y adaptación en España: Grupo Estudio M-CHAT España.
+  </div>
+
+  <script>
+    // ---- Configuración base ----
+    const riskItems = {
+      1: "no",
+      2: "si",
+      3: "no",
+      4: "no",
+      5: "si",
+      6: "no",
+      7: "no",
+      8: "no",
+      9: "no",
+      10: "no",
+      11: "no",
+      12: "si",
+      13: "no",
+      14: "no",
+      15: "no",
+      16: "no",
+      17: "no",
+      18: "no",
+      19: "no",
+      20: "no",
+    };
+
+    const questionsText = [
+      "1. Si usted señala algo al otro lado de la habitación, ¿su hijo/a lo mira? (por ejemplo, si usted señala un juguete o un animal, ¿su hijo/a lo mira?)",
+      "2. ¿Alguna vez se ha preguntado si su hijo/a es sordo/a?",
+      "3. ¿Su hijo/a juega juegos de fantasía o imaginación? (por ejemplo, hace como que bebe de una taza vacía o da de comer a una muñeca)",
+      "4. ¿A su hijo/a le gusta subirse a cosas? (silla, escaleras, tobogán, etc.)",
+      "5. ¿Hace su hijo/a movimientos inusuales con sus dedos cerca de sus ojos?",
+      "6. ¿Su hijo/a señala con un dedo cuando quiere pedir algo o pedir ayuda?",
+      "7. ¿Su hijo/a señala con un dedo cuando quiere mostrarle algo que le llama la atención?",
+      "8. ¿Su hijo/a se interesa en otros niños? (mira, se acerca, les sonríe)",
+      "9. ¿Su hijo/a le muestra cosas acercándolas o levantándolas para que usted las vea (no solo para pedir ayuda)?",
+      "10. ¿Su hijo/a responde cuando usted le llama por su nombre?",
+      "11. Cuando usted sonríe a su hijo/a, ¿él o ella también le sonríe?",
+      "12. ¿Le molestan a su hijo/a ruidos cotidianos? (aspiradora, música no muy alta, etc.)",
+      "13. ¿Su hijo/a camina solo?",
+      "14. ¿Su hijo/a le mira a los ojos cuando usted le habla, juega o lo viste?",
+      "15. ¿Su hijo/a imita sus movimientos? (decir adiós con la mano, aplaudir, etc.)",
+      "16. Si usted se gira a ver algo, ¿su hijo/a intenta mirar hacia lo que usted está mirando?",
+      "17. ¿Su hijo/a intenta que usted le mire o le preste atención? (por ejemplo, dice “mira” o busca que lo feliciten)",
+      "18. ¿Su hijo/a le entiende cuando usted le dice que haga algo sin gestos? (por ejemplo: “pon el libro en la silla”)",
+      "19. Si algo nuevo sucede, ¿su hijo/a le mira para ver cómo reacciona usted?",
+      "20. ¿Le gustan a su hijo/a los juegos de movimiento? (por ejemplo, que lo balanceen o el “caballito” en las rodillas)",
+    ];
+
+    const followUpTexts = [...questionsText]; // mismas preguntas en seguimiento
+
+    // Inicializar fecha de evaluación y generar preguntas
+    window.addEventListener("DOMContentLoaded", () => {
+      const evalInput = document.getElementById("evaluation-date");
+      evalInput.valueAsDate = new Date();
+      generateMainQuestions();
+    });
+
+    function generateMainQuestions() {
+      const container = document.getElementById("questions-container");
+      container.innerHTML = "";
+
+      questionsText.forEach((text, index) => {
+        const num = index + 1;
+
+        const questionDiv = document.createElement("div");
+        questionDiv.className = "question";
+
+        const qText = document.createElement("div");
+        qText.className = "question-text";
+        qText.textContent = text;
+
+        const optionsDiv = document.createElement("div");
+        optionsDiv.className = "options";
+
+        const optionYes = document.createElement("label");
+        optionYes.className = "option";
+        optionYes.innerHTML = `
+          <input type="radio" name="q${num}" value="si" onchange="updateProgress()" />
+          Sí
+        `;
+
+        const optionNo = document.createElement("label");
+        optionNo.className = "option";
+        optionNo.innerHTML = `
+          <input type="radio" name="q${num}" value="no" onchange="updateProgress()" />
+          No
+        `;
+
+        optionsDiv.appendChild(optionYes);
+        optionsDiv.appendChild(optionNo);
+
+        questionDiv.appendChild(qText);
+        questionDiv.appendChild(optionsDiv);
+
+        container.appendChild(questionDiv);
+      });
+    }
+
+    // ---- Navegación y validación datos paciente ----
+    function validatePatientInfo() {
+      const name = document.getElementById("patient-name").value.trim();
+      const birthdate = document.getElementById("patient-birthdate").value;
+      const evaluator = document.getElementById("evaluator-name").value.trim();
+
+      if (!name || !birthdate || !evaluator) {
+        alert("Por favor, complete nombre, fecha de nacimiento y nombre del evaluador.");
+        return false;
+      }
+
+      document.getElementById("patient-info-section").classList.add("hidden");
+      document.getElementById("main-form").classList.remove("hidden");
+
+      document.getElementById("step1").className = "step completed";
+      document.getElementById("step2").className = "step current";
+
+      return true;
+    }
+
+    function goBackToPatientInfo() {
+      document.getElementById("main-form").classList.add("hidden");
+      document.getElementById("patient-info-section").classList.remove("hidden");
+
+      document.getElementById("step2").className = "step";
+      document.getElementById("step1").className = "step current";
+    }
+
+    function goBackToMainForm() {
+      document.getElementById("follow-up-section").classList.add("hidden");
+      document.getElementById("main-form").classList.remove("hidden");
+
+      document.getElementById("step3").className = "step";
+      document.getElementById("step2").className = "step current";
+    }
+
+    // ---- Progreso ----
+    function updateProgress() {
+      const totalQuestions = 20;
+      let answered = 0;
+
+      for (let i = 1; i <= totalQuestions; i++) {
+        if (document.querySelector(`input[name="q${i}"]:checked`)) {
+          answered++;
+        }
+      }
+
+      const percentage = (answered / totalQuestions) * 100;
+      document.getElementById("progress-bar").style.width = `${percentage}%`;
+    }
+
+    // ---- Puntuación principal ----
+    function calculateScore() {
+      let score = 0;
+      const unanswered = [];
+
+      for (let i = 1; i <= 20; i++) {
+        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+        if (!selected) {
+          unanswered.push(i);
+        } else if (selected.value === riskItems[i]) {
+          score++;
+        }
+      }
+
+      // Mensaje de preguntas incompletas
+      const previousMissing = document.querySelector(".missing-questions");
+      if (previousMissing) previousMissing.remove();
+
+      if (unanswered.length > 0) {
+        const missingDiv = document.createElement("div");
+        missingDiv.className = "missing-questions";
+        missingDiv.innerHTML = `
+          <h3>⚠ Preguntas incompletas</h3>
+          <p>Responda las siguientes preguntas antes de continuar:</p>
+          <ul>${unanswered.map((q) => `<li>${q}.</li>`).join("")}</ul>
+        `;
+
+        const nav = document.querySelector("#main-form .navigation");
+        nav.parentNode.insertBefore(missingDiv, nav);
+        missingDiv.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
+      displayResult(score);
+    }
+
+    function displayResult(score) {
+      const resultDiv = document.getElementById("result");
+      resultDiv.style.display = "block";
+
+      const { patientName, ageInMonths } = getPatientSummary();
+
+      if (score <= 2) {
+        resultDiv.className = "result low-risk";
+        resultDiv.innerHTML = `
+          <h3><span class="risk-badge badge-low">BAJO RIESGO</span> Resultado: Bajo riesgo</h3>
+          <p><strong>Paciente:</strong> ${patientName}</p>
+          <p><strong>Edad aproximada:</strong> ${ageInMonths} meses</p>
+          <p><strong>Puntuación total:</strong> ${score} / 20</p>
+          <p><strong>Recomendación:</strong> Si el niño es menor de 24 meses, repetir el M-CHAT-R a los 24 meses. No se requieren otras medidas, salvo que la vigilancia del desarrollo indique riesgo de TEA.</p>
+        `;
+
+        document.getElementById("step2").className = "step completed";
+        document.getElementById("step4").className = "step current";
+        showRestartContainer();
+        showRiskModal("low", score, ageInMonths);
+
+      } else if (score >= 3 && score <= 7) {
+        resultDiv.className = "result medium-risk";
+        resultDiv.innerHTML = `
+          <h3><span class="risk-badge badge-medium">RIESGO MEDIO</span> Resultado: Riesgo medio</h3>
+          <p><strong>Paciente:</strong> ${patientName}</p>
+          <p><strong>Edad aproximada:</strong> ${ageInMonths} meses</p>
+          <p><strong>Puntuación total:</strong> ${score} / 20</p>
+          <p><strong>Recomendación:</strong> Aplicar la entrevista de seguimiento (M-CHAT-R/F) para aclarar las respuestas de riesgo.</p>
+        `;
+
+        document.getElementById("step2").className = "step completed";
+        document.getElementById("step3").className = "step current";
+
+        document.getElementById("follow-up-section").classList.remove("hidden");
+        document.getElementById("main-form").classList.add("hidden");
+        generateFollowUpQuestions();
+        showRiskModal("medium", score, ageInMonths);
+
+      } else {
+        resultDiv.className = "result high-risk";
+        resultDiv.innerHTML = `
+          <h3><span class="risk-badge badge-high">ALTO RIESGO</span> Resultado: Alto riesgo</h3>
+          <p><strong>Paciente:</strong> ${patientName}</p>
+          <p><strong>Edad aproximada:</strong> ${ageInMonths} meses</p>
+          <p><strong>Puntuación total:</strong> ${score} / 20</p>
+          <p><strong>Recomendación:</strong> Puede omitirse la entrevista de seguimiento y derivar directamente para evaluación diagnóstica e intervención temprana.</p>
+        `;
+
+        document.getElementById("step2").className = "step completed";
+        document.getElementById("step4").className = "step current";
+        showRestartContainer();
+        showRiskModal("high", score, ageInMonths);
+      }
+    }
+
+    function getPatientSummary() {
+      const patientName = document.getElementById("patient-name").value || "(sin nombre)";
+      const birthdate = document.getElementById("patient-birthdate").value;
+      const evaluationDate = document.getElementById("evaluation-date").value;
+
+      const birthDateObj = birthdate ? new Date(birthdate) : null;
+      const evalDateObj = evaluationDate ? new Date(evaluationDate) : new Date();
+
+      let ageInMonths = "";
+      if (birthDateObj) {
+        ageInMonths = Math.floor((evalDateObj - birthDateObj) / (1000 * 60 * 60 * 24 * 30.44));
+      }
+
+      return { patientName, birthdate, evaluationDate, ageInMonths };
+    }
+
+    // ---- Seguimiento ----
+    function generateFollowUpQuestions() {
+      const tbody = document.getElementById("follow-up-questions");
+      tbody.innerHTML = "";
+
+      followUpTexts.forEach((text, index) => {
+        const num = index + 1;
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${text}</td>
+          <td>
+            <label>
+              <input type="radio" name="fq${num}" value="pasa" />
+              Pasa
+            </label>
+          </td>
+          <td>
+            <label>
+              <input type="radio" name="fq${num}" value="no_pasa" />
+              No pasa
+            </label>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function calculateFollowUpScore() {
+      let score = 0;
+
+      for (let i = 1; i <= 20; i++) {
+        const selected = document.querySelector(`input[name="fq${i}"]:checked`);
+        if (!selected) {
+          alert("Por favor, responda todas las preguntas de seguimiento.");
+          return;
+        }
+        if (selected.value === "no_pasa") score++;
+      }
+
+      displayFollowUpResult(score);
+    }
+
+    function displayFollowUpResult(followUpScore) {
+      const resultDiv = document.getElementById("result");
+      resultDiv.style.display = "block";
+
+      const { patientName, ageInMonths } = getPatientSummary();
+
+      if (followUpScore >= 2) {
+        resultDiv.className = "result high-risk";
+        resultDiv.innerHTML = `
+          <h3><span class="risk-badge badge-high">POSITIVO</span> Resultado de seguimiento: Positivo</h3>
+          <p><strong>Paciente:</strong> ${patientName}</p>
+          <p><strong>Edad aproximada:</strong> ${ageInMonths} meses</p>
+          <p><strong>Puntuación de seguimiento:</strong> ${followUpScore} "No pasa" / 20</p>
+          <p><strong>Recomendación:</strong> Remitir para evaluación diagnóstica completa y para acceder a intervención temprana.</p>
+        `;
+
+        document.getElementById("step3").className = "step completed";
+        document.getElementById("step4").className = "step current";
+        document.getElementById("follow-up-section").classList.add("hidden");
+        showRestartContainer();
+        showRiskModal("high-followup", followUpScore, ageInMonths);
+      } else {
+        resultDiv.className = "result low-risk";
+        resultDiv.innerHTML = `
+          <h3><span class="risk-badge badge-low">NEGATIVO</span> Resultado de seguimiento: Negativo</h3>
+          <p><strong>Paciente:</strong> ${patientName}</p>
+          <p><strong>Edad aproximada:</strong> ${ageInMonths} meses</p>
+          <p><strong>Puntuación de seguimiento:</strong> ${followUpScore} "No pasa" / 20</p>
+          <p><strong>Recomendación:</strong> No se requieren medidas adicionales específicas para TEA, salvo que la vigilancia del desarrollo indique nuevas preocupaciones.</p>
+        `;
+
+        document.getElementById("step3").className = "step completed";
+        document.getElementById("step4").className = "step current";
+        document.getElementById("follow-up-section").classList.add("hidden");
+        showRestartContainer();
+        showRiskModal("low-followup", followUpScore, ageInMonths);
+      }
+    }
+
+    // ---- Modal ----
+    function showRiskModal(riskLevel, score, ageInMonths) {
+      const modal = document.getElementById("risk-modal");
+      const modalTitle = document.getElementById("modal-title");
+      const modalBody = document.getElementById("modal-body");
+
+      const { patientName, birthdate, evaluationDate } = getPatientSummary();
+      const evaluatorName = document.getElementById("evaluator-name").value;
+
+      let title = "";
+      let content = "";
+
+      const evalDateFormatted = formatDate(evaluationDate);
+      const birthFormatted = birthdate ? formatDate(birthdate) : "No registrada";
+
+      if (riskLevel === "low") {
+        title = "Resultado: Bajo riesgo";
+        content = `
+          <p><strong>Paciente:</strong> ${patientName}</p>
+          <p><strong>Fecha de nacimiento:</strong> ${birthFormatted}</p>
+          <p><strong>Edad aproximada:</strong> ${ageInMonths} meses</p>
+          <p><strong>Fecha de evaluación:</strong> ${evalDateFormatted}</p>
+          <p><strong>Evaluador:</strong> ${evaluatorName}</p>
+          <p><strong>Puntuación:</strong> ${score} / 20</p>
+
+          <h3 style="color:#155724;margin-top:16px;">¿Qué significa?</h3>
+          <p>El M-CHAT-R/F™ indica un <strong>bajo riesgo</strong> de trastorno del espectro autista (TEA) según las respuestas entregadas.</p>
+
+          <h3 style="color:#155724;margin-top:16px;">Recomendaciones</h3>
+          <ul>
+            <li>Si el niño es menor de 24 meses, repetir el M-CHAT-R a los 24 meses.</li>
+            <li>No se requieren otras medidas específicas, a menos que existan otras preocupaciones del desarrollo.</li>
+            <li>Continuar con la vigilancia del desarrollo en controles habituales.</li>
+          </ul>
+
+          <p style="font-style:italic;color:#666;">Un resultado de bajo riesgo no descarta completamente TEA u otros trastornos. Ante nuevas preocupaciones, se recomienda evaluación profesional.</p>
+        `;
+      } else if (riskLevel === "medium") {
+        title = "Resultado: Riesgo medio";
+        content = `
+          <p><strong>Paciente:</strong> ${patientName}</p>
+          <p><strong>Fecha de nacimiento:</strong> ${birthFormatted}</p>
+          <p><strong>Edad aproximada:</strong> ${ageInMonths} meses</p>
+          <p><strong>Fecha de evaluación:</strong> ${evalDateFormatted}</p>
+          <p><strong>Evaluador:</strong> ${evaluatorName}</p>
+          <p><strong>Puntuación:</strong> ${score} / 20</p>
+
+          <h3 style="color:#856404;margin-top:16px;">¿Qué significa?</h3>
+          <p>El M-CHAT-R/F™ indica un <strong>riesgo medio</strong> de TEA. Hay áreas del desarrollo que requieren exploración más detallada.</p>
+
+          <h3 style="color:#856404;margin-top:16px;">Próximos pasos</h3>
+          <ol>
+            <li>Aplicar la <strong>entrevista de seguimiento</strong> M-CHAT-R/F.</li>
+            <li>Según el resultado del seguimiento, decidir derivación a evaluación diagnóstica.</li>
+            <li>Continuar vigilancia del desarrollo en controles posteriores.</li>
+          </ol>
+
+          <p style="font-style:italic;color:#666;">Riesgo medio no equivale a diagnóstico de TEA, pero justifica una evaluación más profunda.</p>
+        `;
+      } else if (riskLevel === "high") {
+        title = "Resultado: Alto riesgo";
+        content = `
+          <p><strong>Paciente:</strong> ${patientName}</p>
+          <p><strong>Fecha de nacimiento:</strong> ${birthFormatted}</p>
+          <p><strong>Edad aproximada:</strong> ${ageInMonths} meses</p>
+          <p><strong>Fecha de evaluación:</strong> ${evalDateFormatted}</p>
+          <p><strong>Evaluador:</strong> ${evaluatorName}</p>
+          <p><strong>Puntuación:</strong> ${score} / 20</p>
+
+          <h3 style="color:#721c24;margin-top:16px;">¿Qué significa?</h3>
+          <p>El M-CHAT-R/F™ indica un <strong>alto riesgo</strong> de TEA. Hay múltiples respuestas en zona de riesgo.</p>
+
+          <h3 style="color:#721c24;margin-top:16px;">Acciones recomendadas</h3>
+          <ul>
+            <li>Derivar de forma prioritaria a evaluación diagnóstica por equipo especializado.</li>
+            <li>Iniciar trámite para <strong>intervención temprana</strong> si está disponible.</li>
+            <li>Entregar orientación y apoyo a la familia.</li>
+          </ul>
+
+          <p style="font-style:italic;color:#666;">Este resultado no es un diagnóstico definitivo, pero sí una señal de alerta que requiere evaluación clínica completa.</p>
+        `;
+      } else if (riskLevel === "high-followup") {
+        title = "Seguimiento: Resultado positivo";
+        content = `
+          <p><strong>Paciente:</strong> ${patientName}</p>
+          <p><strong>Fecha de nacimiento:</strong> ${birthFormatted}</p>
+          <p><strong>Edad aproximada:</strong> ${ageInMonths} meses</p>
+          <p><strong>Fecha de evaluación:</strong> ${evalDateFormatted}</p>
+          <p><strong>Evaluador:</strong> ${evaluatorName}</p>
+          <p><strong>Puntuación de seguimiento:</strong> ${score} "No pasa" / 20</p>
+
+          <h3 style="color:#721c24;margin-top:16px;">Conclusión</h3>
+          <p>El resultado del M-CHAT-R/F (incluyendo seguimiento) es <strong>positivo</strong>, compatible con alto riesgo de TEA.</p>
+
+          <h3 style="color:#721c24;margin-top:16px;">Pasos críticos</h3>
+          <ol>
+            <li>Derivar a evaluación diagnóstica formal (psiquiatría infantil / neurología infantil / equipo multidisciplinario).</li>
+            <li>Gestionar ingreso a programas de intervención temprana.</li>
+            <li>Coordinar apoyo psicoeducativo para la familia.</li>
+          </ol>
+
+          <p style="font-style:italic;color:#666;">La intervención temprana mejora significativamente el pronóstico. No retrasar la derivación.</p>
+        `;
+      } else if (riskLevel === "low-followup") {
+        title = "Seguimiento: Resultado negativo";
+        content = `
+          <p><strong>Paciente:</strong> ${patientName}</p>
+          <p><strong>Fecha de nacimiento:</strong> ${birthFormatted}</p>
+          <p><strong>Edad aproximada:</strong> ${ageInMonths} meses</p>
+          <p><strong>Fecha de evaluación:</strong> ${evalDateFormatted}</p>
+          <p><strong>Evaluador:</strong> ${evaluatorName}</p>
+          <p><strong>Puntuación de seguimiento:</strong> ${score} "No pasa" / 20</p>
+
+          <h3 style="color:#155724;margin-top:16px;">Conclusión</h3>
+          <p>El resultado global del M-CHAT-R/F (incluida la entrevista de seguimiento) es <strong>negativo</strong> para TEA.</p>
+
+          <h3 style="color:#155724;margin-top:16px;">Recomendaciones</h3>
+          <ul>
+            <li>No se requieren medidas adicionales específicas para TEA en este momento.</li>
+            <li>Continuar controles del desarrollo según programa del niño sano.</li>
+            <li>Solicitar nueva evaluación si aparecieran signos de alarma en el futuro.</li>
+          </ul>
+
+          <p style="font-style:italic;color:#666;">Aun con resultado negativo, la vigilancia del desarrollo debe mantenerse en el tiempo.</p>
+        `;
+      }
+
+      modalTitle.textContent = title;
+      modalBody.innerHTML = content;
+      modal.style.display = "flex";
+    }
+
+    function closeModal() {
+      document.getElementById("risk-modal").style.display = "none";
+    }
+
+    // ---- Utilidades ----
+    function printResults() {
+      const resultDiv = document.getElementById("result");
+      if (resultDiv.style.display === "none") {
+        alert("Primero calcule los resultados antes de imprimir.");
+        return;
+      }
+      window.print();
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return "No registrada";
+      const options = { year: "numeric", month: "long", day: "numeric" };
+      return new Date(dateString).toLocaleDateString("es-ES", options);
+    }
+
+    function showRestartContainer() {
+      document.getElementById("restart-container").classList.remove("hidden");
+    }
+
+    function restartQuestionnaire() {
+      document.getElementById("patient-name").value = "";
+      document.getElementById("patient-birthdate").value = "";
+      document.getElementById("evaluation-date").valueAsDate = new Date();
+      document.getElementById("evaluator-name").value = "";
+
+      document.querySelectorAll('input[type="radio"]').forEach((r) => (r.checked = false));
+
+      document.getElementById("progress-bar").style.width = "0%";
+
+      document.getElementById("main-form").classList.add("hidden");
+      document.getElementById("follow-up-section").classList.add("hidden");
+      document.getElementById("result").style.display = "none";
+      document.getElementById("restart-container").classList.add("hidden");
+
+      const missing = document.querySelector(".missing-questions");
+      if (missing) missing.remove();
+
+      document.getElementById("patient-info-section").classList.remove("hidden");
+
+      document.querySelectorAll(".step").forEach((s) => (s.className = "step"));
+      document.getElementById("step1").className = "step current";
+    }
+
+    // ---- PDF ----
+    async function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const resultDiv = document.getElementById("result");
+
+      if (resultDiv.style.display === "none") {
+        alert("Primero calcule los resultados antes de descargar el PDF.");
+        return;
+      }
+
+      const { patientName, birthdate, evaluationDate, ageInMonths } = getPatientSummary();
+      const evaluatorName = document.getElementById("evaluator-name").value;
+      const birthFormatted = formatDate(birthdate);
+      const evalFormatted = formatDate(evaluationDate);
+
+      const pdfContainer = document.createElement("div");
+      pdfContainer.style.position = "absolute";
+      pdfContainer.style.left = "-9999px";
+      pdfContainer.style.width = "210mm";
+      pdfContainer.style.padding = "20px";
+      pdfContainer.style.fontFamily = "Arial, sans-serif";
+      pdfContainer.style.fontSize = "12px";
+      pdfContainer.style.lineHeight = "1.5";
+      pdfContainer.style.backgroundColor = "#fff";
+
+      let resultTypeColor = "#006400";
+      if (resultDiv.classList.contains("medium-risk")) resultTypeColor = "#b8860b";
+      if (resultDiv.classList.contains("high-risk")) resultTypeColor = "#8b0000";
+
+      const resultTitle = resultDiv.querySelector("h3")?.textContent || "Resultado M-CHAT-R/F";
+
+      pdfContainer.innerHTML = `
+        <div style="text-align:center;margin-bottom:20px;">
+          <h1 style="color:#2c3e50;margin:0;">Cuestionario M-CHAT-R/F™</h1>
+          <p style="color:#666;font-style:italic;margin:8px 0;">
+            © 2009 Diana Robins, Deborah Fein, &amp; Marianne Barton. Traducción y adaptación en España: Grupo Estudio M-CHAT España.
+          </p>
+          <hr style="margin:12px 0;border:1px solid #3498db;" />
+        </div>
+
+        <section style="margin-bottom:15px;">
+          <h2 style="color:#34495e;margin:0 0 8px 0;font-size:16px;">Información del paciente</h2>
+          <p style="margin:2px 0;"><strong>Paciente:</strong> ${patientName}</p>
+          <p style="margin:2px 0;"><strong>Fecha de nacimiento:</strong> ${birthFormatted}</p>
+          <p style="margin:2px 0;"><strong>Edad aproximada:</strong> ${ageInMonths || "No calculada"} meses</p>
+          <p style="margin:2px 0;"><strong>Fecha de evaluación:</strong> ${evalFormatted}</p>
+          <p style="margin:2px 0;"><strong>Evaluador:</strong> ${evaluatorName || "No registrado"}</p>
+        </section>
+
+        <hr style="margin:12px 0;border:1px solid #ddd;" />
+
+        <section>
+          <h2 style="color:#34495e;margin:0 0 8px 0;font-size:16px;">Resultados</h2>
+          <h3 style="color:${resultTypeColor};margin:4px 0 8px 0;font-size:14px;">${resultTitle}</h3>
+          <div style="background-color:#f8f9fa;padding:12px;border-radius:4px;border:1px solid #dee2e6;font-size:12px;">
+            ${resultDiv.innerHTML}
+          </div>
+        </section>
+
+        <hr style="margin:14px 0;border:1px solid #ddd;" />
+
+        <p style="font-size:10px;text-align:center;color:#666;margin-top:12px;">
+          Este documento corresponde a un resumen de resultados del cuestionario M-CHAT-R/F™ para uso clínico.
+        </p>
+      `;
+
+      document.body.appendChild(pdfContainer);
+
+      await new Promise((resolve) => setTimeout(resolve, 400));
+
+      try {
+        const canvas = await html2canvas(pdfContainer, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+        });
+
+        const imgData = canvas.toDataURL("image/jpeg", 0.95);
+        const pdf = new jsPDF("p", "mm", "a4");
+        const imgWidth = 210;
+        const pageHeight = 297;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+        let heightLeft = imgHeight;
+        let position = 0;
+
+        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+
+        while (heightLeft > 0) {
+          position = heightLeft - imgHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+        }
+
+        const safeName = patientName.replace(/\s+/g, "_") || "paciente";
+        pdf.save(`M-CHAT-R_${safeName}_${evaluationDate || "fecha"}.pdf`);
+      } catch (error) {
+        console.error("Error al generar PDF con html2canvas:", error);
+        alert("Hubo un problema al generar el PDF. Intente nuevamente o utilice la opción de imprimir.");
+      } finally {
+        document.body.removeChild(pdfContainer);
+      }
+    }
+  </script>
+</body>
+</html>
