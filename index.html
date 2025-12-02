@@ -15,12 +15,15 @@
       --primary-dark: #2980b9;
       --primary-soft: #e8f4fd;
       --success: #27ae60;
+      --success-dark: #219955;
       --danger: #e74c3c;
       --warning: #f1c40f;
       --gray-soft: #f5f7fa;
       --border: #dee2e6;
       --text-main: #2c3e50;
       --text-soft: #666;
+      --shadow: 0 0 20px rgba(0,0,0,0.08);
+      --transition: all 0.25s ease;
     }
 
     * {
@@ -41,7 +44,7 @@
       background-color: #fff;
       padding: 30px;
       border-radius: 10px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.08);
+      box-shadow: var(--shadow);
       margin-bottom: 30px;
     }
 
@@ -63,6 +66,14 @@
       font-size: 20px;
     }
 
+    .subtitle {
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-soft);
+      margin-top: -20px;
+      margin-bottom: 15px;
+    }
+
     .instructions {
       background-color: var(--primary-soft);
       padding: 15px 20px;
@@ -70,6 +81,11 @@
       margin-bottom: 25px;
       border-left: 5px solid var(--primary);
       font-size: 14px;
+    }
+
+    .instructions ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
     }
 
     .patient-info {
@@ -99,6 +115,7 @@
       border: 1px solid #ddd;
       border-radius: 4px;
       font-size: 15px;
+      transition: var(--transition);
     }
 
     input[type="text"]:focus,
@@ -114,7 +131,7 @@
       border: 1px solid #e0e0e0;
       border-radius: 8px;
       background-color: #fafafa;
-      transition: all 0.25s ease;
+      transition: var(--transition);
     }
 
     .question:hover {
@@ -142,10 +159,13 @@
       cursor: pointer;
       font-size: 14px;
       transition: transform 0.15s ease;
+      padding: 5px;
+      border-radius: 4px;
     }
 
     .option:hover {
       transform: scale(1.03);
+      background-color: rgba(52, 152, 219, 0.05);
     }
 
     input[type="radio"] {
@@ -174,13 +194,18 @@
       cursor: pointer;
       font-size: 15px;
       font-weight: 600;
-      transition: all 0.25s ease;
+      transition: var(--transition);
     }
 
     button:hover {
       background-color: var(--primary-dark);
       transform: translateY(-1px);
       box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+
+    button:focus {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
     }
 
     button:disabled {
@@ -203,7 +228,7 @@
     }
 
     .restart:hover {
-      background-color: #219955;
+      background-color: var(--success-dark);
     }
 
     .download {
@@ -219,7 +244,7 @@
     }
 
     .print-button:hover {
-      background-color: #219955;
+      background-color: var(--success-dark);
     }
 
     .result {
@@ -307,6 +332,7 @@
       border: 1px solid var(--border);
       border-radius: 5px;
       font-size: 13px;
+      transition: var(--transition);
     }
 
     .step.current {
@@ -322,7 +348,7 @@
     }
 
     .progress-container {
-      margin: 15px 0 20px;
+      margin: 15px 0 8px;
       height: 8px;
       background-color: #e9ecef;
       border-radius: 5px;
@@ -334,6 +360,13 @@
       width: 0%;
       background-color: var(--primary);
       transition: width 0.4s ease;
+    }
+
+    .progress-summary {
+      font-size: 13px;
+      color: var(--text-soft);
+      text-align: right;
+      margin-bottom: 15px;
     }
 
     .restart-container {
@@ -451,6 +484,12 @@
       cursor: pointer;
       color: #95a5a6;
       line-height: 1;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .close-button:hover {
@@ -517,12 +556,22 @@
       .options {
         gap: 12px;
       }
+      .step-indicator {
+        flex-direction: column;
+      }
+      .step {
+        margin-bottom: 5px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container" id="printable-area" aria-live="polite">
     <h1>Cuestionario M-CHAT-R/F™</h1>
+    <p class="subtitle">
+      Herramienta de cribado temprano para riesgo de trastorno del espectro autista (TEA)<br>
+      <strong>Desarrollado por el Dr. Nelson Ovalle Araujo - Pediatra</strong>
+    </p>
 
     <div class="step-indicator" aria-label="Progreso de la evaluación">
       <div id="step1" class="step current">1. Datos del paciente</div>
@@ -537,28 +586,32 @@
         <h2 id="patient-info-title">Información del Paciente</h2>
 
         <div class="form-group">
-          <label for="patient-name">Nombre del paciente:</label>
-          <input type="text" id="patient-name" placeholder="Ingrese el nombre completo" autocomplete="off" />
+          <label for="patient-name">Nombre del paciente <span style="color:#e74c3c;">*</span></label>
+          <input type="text" id="patient-name" placeholder="Ingrese el nombre completo" autocomplete="name" required />
         </div>
 
         <div class="form-group">
-          <label for="patient-birthdate">Fecha de nacimiento:</label>
-          <input type="date" id="patient-birthdate" />
+          <label for="patient-birthdate">Fecha de nacimiento <span style="color:#e74c3c;">*</span></label>
+          <input type="date" id="patient-birthdate" required />
         </div>
 
         <div class="form-group">
-          <label for="evaluation-date">Fecha de evaluación:</label>
+          <label for="evaluation-date">Fecha de evaluación</label>
           <input type="date" id="evaluation-date" />
         </div>
 
         <div class="form-group">
-          <label for="evaluator-name">Nombre del evaluador:</label>
-          <input type="text" id="evaluator-name" placeholder="Nombre del profesional" autocomplete="off" />
+          <label for="evaluator-name">Nombre del evaluador / profesional <span style="color:#e74c3c;">*</span></label>
+          <input type="text" id="evaluator-name" placeholder="Nombre del profesional" autocomplete="name" required />
         </div>
+
+        <p style="font-size:12px;color:#888;margin-top:8px;">
+          Los campos marcados con <span style="color:#e74c3c;">*</span> son obligatorios.
+        </p>
       </div>
 
       <div class="navigation">
-        <button type="button" onclick="validatePatientInfo()">
+        <button type="button" id="btn-to-questions" onclick="validatePatientInfo()">
           Continuar al cuestionario
         </button>
       </div>
@@ -567,26 +620,32 @@
     <!-- Sección cuestionario principal -->
     <section id="main-form" class="hidden" aria-labelledby="main-form-title">
       <div class="instructions">
-        <strong>Instrucciones:</strong>
-        Para todos los ítems, excepto el 2, 5 y 12, la respuesta <strong>“NO”</strong> indica riesgo de TEA.
-        Para los ítems <strong>2, 5 y 12</strong>, la respuesta <strong>“SÍ”</strong> indica riesgo de TEA.
+        <strong>Instrucciones para el evaluador / cuidador:</strong>
+        <ul>
+          <li>Responda pensando en el comportamiento habitual del niño/a (no en situaciones excepcionales).</li>
+          <li>Para todos los ítems, excepto el <strong>2, 5 y 12</strong>, la respuesta <strong>“NO”</strong> indica riesgo de TEA.</li>
+          <li>Para los ítems <strong>2, 5 y 12</strong>, la respuesta <strong>“SÍ”</strong> indica riesgo de TEA.</li>
+        </ul>
       </div>
 
       <div class="progress-container" aria-hidden="true">
         <div id="progress-bar" class="progress-bar"></div>
       </div>
+      <div id="progress-summary" class="progress-summary">
+        0 de 20 preguntas respondidas
+      </div>
 
       <h2 id="main-form-title">Cuestionario M-CHAT-R (20 ítems)</h2>
 
       <form id="mchat-form">
-        <!-- Preguntas generadas por JS, este contenedor es solo para ancla -->
+        <!-- Preguntas generadas por JS -->
         <div id="questions-container"></div>
 
         <div class="navigation">
           <button type="button" class="secondary" onclick="goBackToPatientInfo()">
             Atrás
           </button>
-          <button type="button" onclick="calculateScore()">
+          <button type="button" id="btn-calc-score" onclick="calculateScore()">
             Calcular resultado
           </button>
         </div>
@@ -596,7 +655,9 @@
     <!-- Entrevista de seguimiento -->
     <section id="follow-up-section" class="follow-up-section hidden" aria-labelledby="followup-title">
       <h2 id="followup-title">Entrevista de Seguimiento M-CHAT-R/F™</h2>
-      <p>Según el resultado inicial, se requiere aplicar la entrevista de seguimiento.</p>
+      <p style="font-size:14px;">
+        Según el resultado inicial, se requiere aplicar la entrevista de seguimiento para clarificar las respuestas en zona de riesgo.
+      </p>
 
       <table class="follow-up-table">
         <thead>
@@ -621,7 +682,7 @@
       </div>
     </section>
 
-    <div id="result" class="result"></div>
+    <div id="result" class="result" aria-live="polite"></div>
 
     <div id="restart-container" class="restart-container hidden">
       <h3>¿Desea realizar un nuevo cuestionario?</h3>
@@ -709,6 +770,9 @@
       const evalInput = document.getElementById("evaluation-date");
       evalInput.valueAsDate = new Date();
       generateMainQuestions();
+      
+      // Agregar funcionalidad de teclado
+      document.addEventListener('keydown', handleKeyboardNavigation);
     });
 
     function generateMainQuestions() {
@@ -718,12 +782,12 @@
       questionsText.forEach((text, index) => {
         const num = index + 1;
 
-        const questionDiv = document.createElement("div");
-        questionDiv.className = "question";
+        const fieldset = document.createElement("fieldset");
+        fieldset.className = "question";
 
-        const qText = document.createElement("div");
-        qText.className = "question-text";
-        qText.textContent = text;
+        const legend = document.createElement("legend");
+        legend.className = "question-text";
+        legend.textContent = text;
 
         const optionsDiv = document.createElement("div");
         optionsDiv.className = "options";
@@ -745,10 +809,10 @@
         optionsDiv.appendChild(optionYes);
         optionsDiv.appendChild(optionNo);
 
-        questionDiv.appendChild(qText);
-        questionDiv.appendChild(optionsDiv);
+        fieldset.appendChild(legend);
+        fieldset.appendChild(optionsDiv);
 
-        container.appendChild(questionDiv);
+        container.appendChild(fieldset);
       });
     }
 
@@ -768,6 +832,11 @@
 
       document.getElementById("step1").className = "step completed";
       document.getElementById("step2").className = "step current";
+
+      const firstQuestion = document.querySelector('#questions-container fieldset input[type="radio"]');
+      if (firstQuestion) {
+        firstQuestion.focus();
+      }
 
       return true;
     }
@@ -801,6 +870,9 @@
 
       const percentage = (answered / totalQuestions) * 100;
       document.getElementById("progress-bar").style.width = `${percentage}%`;
+
+      const summary = document.getElementById("progress-summary");
+      summary.textContent = `${answered} de ${totalQuestions} preguntas respondidas`;
     }
 
     // ---- Puntuación principal ----
@@ -817,7 +889,6 @@
         }
       }
 
-      // Mensaje de preguntas incompletas
       const previousMissing = document.querySelector(".missing-questions");
       if (previousMissing) previousMissing.remove();
 
@@ -893,6 +964,8 @@
         showRestartContainer();
         showRiskModal("high", score, ageInMonths);
       }
+
+      resultDiv.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     function getPatientSummary() {
@@ -990,6 +1063,8 @@
         showRestartContainer();
         showRiskModal("low-followup", followUpScore, ageInMonths);
       }
+
+      resultDiv.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     // ---- Modal ----
@@ -1122,10 +1197,36 @@
       modalTitle.textContent = title;
       modalBody.innerHTML = content;
       modal.style.display = "flex";
+      
+      document.querySelector('.close-button').focus();
     }
 
     function closeModal() {
       document.getElementById("risk-modal").style.display = "none";
+    }
+
+    // ---- Navegación por teclado ----
+    function handleKeyboardNavigation(e) {
+      if (e.key === 'Escape') {
+        const modal = document.getElementById('risk-modal');
+        if (modal.style.display === 'flex') {
+          closeModal();
+        }
+      }
+      
+      if (e.key === 'Tab' && document.getElementById('risk-modal').style.display === 'flex') {
+        const focusableElements = document.querySelectorAll('.modal-content button, .modal-content input, .modal-content a');
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+        
+        if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
     }
 
     // ---- Utilidades ----
@@ -1157,6 +1258,7 @@
       document.querySelectorAll('input[type="radio"]').forEach((r) => (r.checked = false));
 
       document.getElementById("progress-bar").style.width = "0%";
+      document.getElementById("progress-summary").textContent = "0 de 20 preguntas respondidas";
 
       document.getElementById("main-form").classList.add("hidden");
       document.getElementById("follow-up-section").classList.add("hidden");
@@ -1170,6 +1272,8 @@
 
       document.querySelectorAll(".step").forEach((s) => (s.className = "step"));
       document.getElementById("step1").className = "step current";
+      
+      document.getElementById("patient-name").focus();
     }
 
     // ---- PDF ----
